@@ -476,7 +476,7 @@
         <div class="edit-grid" style="padding:0;margin-bottom:10px">
           <div class="edit-group full"><span class="edit-label" style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;display:block">Údaje vodiča</span></div>
           <div class="edit-group"><span class="edit-label">Meno vodiča</span><input class="edit-field" id="c-driver-name" placeholder="Meno a priezvisko"/></div>
-          <div class="edit-group"><span class="edit-label">Číslo OP / pas</span><input class="edit-field" id="c-driver-id" placeholder="Číslo dokladu"/></div>
+          <div class="edit-group"><span class="edit-label">Dátum narodenia</span><input class="edit-field" type="date" id="c-driver-id"/></div>
           <div class="edit-group"><span class="edit-label">Trvalý pobyt</span><input class="edit-field" id="c-driver-address" placeholder="Adresa..."/></div>
           <div class="edit-group full"><span class="edit-label" style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;display:block;margin-top:4px">Zloženie TPZOV</span></div>
           <div class="edit-group"><span class="edit-label">Dátum zloženia</span><input class="edit-field" type="date" id="c-date" value="${new Date().toISOString().split('T')[0]}"/></div>
@@ -553,7 +553,7 @@
             ${r.amount?`<div><div class="dp-field-label">Suma pokuty</div><div class="dp-field-val">${r.amount} €</div></div>`:""}
             ${r.driverName?`<div style="grid-column:1/-1;border-top:.5px solid rgba(45,106,79,.2);padding-top:8px;margin-top:4px"><div class="dp-field-label" style="color:var(--green);font-weight:600;margin-bottom:6px">Údaje vodiča</div></div>`:""}
             ${r.driverName?`<div><div class="dp-field-label">Meno</div><div class="dp-field-val">${r.driverName}</div></div>`:""}
-            ${r.driverId?`<div><div class="dp-field-label">OP / pas</div><div class="dp-field-val">${r.driverId}</div></div>`:""}
+            ${r.driverDob?`<div><div class="dp-field-label">Dátum narodenia</div><div class="dp-field-val">${r.driverDob.split("-").reverse().join(".")}</div></div>`:""}
             ${r.law?`<div style="grid-column:1/-1"><div class="dp-field-label">Priestupok podľa</div><div class="dp-field-val" style="font-size:12px;font-weight:400">${r.law}</div></div>`:""}
             ${r.driverAddress?`<div style="grid-column:1/-1"><div class="dp-field-label">Trvalý pobyt</div><div class="dp-field-val">${r.driverAddress}</div></div>`:""}
             ${r.closeNote?`<div style="grid-column:1/-1"><div class="dp-field-label">Poznámka</div><div class="dp-field-val" style="font-weight:400">${r.closeNote}</div></div>`:""}
@@ -593,7 +593,7 @@
     const law    = document.getElementById("c-law")?.value;
     const note   = document.getElementById("c-note")?.value.trim();
     const driverName    = document.getElementById("c-driver-name")?.value.trim()||"";
-    const driverId      = document.getElementById("c-driver-id")?.value.trim()||"";
+    const driverDob     = document.getElementById("c-driver-id")?.value||"";
     const driverAddress = document.getElementById("c-driver-address")?.value.trim()||"";
     const amountWrap = document.getElementById("c-amount-wrap");
     const amount = amountWrap && amountWrap.style.display!=="none" ? document.getElementById("c-amount")?.value : "";
@@ -603,10 +603,10 @@
     if (!res)           { alert("Vyplňte spôsob riešenia."); return; }
     if (!law)           { alert("Vyplňte priestupok podľa."); return; }
     if (!driverName)    { alert("Vyplňte meno vodiča."); return; }
-    if (!driverId)      { alert("Vyplňte číslo OP / pas."); return; }
+    if (!driverDob)     { alert("Vyplňte dátum narodenia vodiča."); return; }
     if (!driverAddress) { alert("Vyplňte trvalý pobyt vodiča."); return; }
     const data = { status:"done", closeDate:date, closeTime:time, closeWorker:worker, resolution:res, law, closeNote:note||"",
-      driverName, driverId, driverPhone:"", driverAddress };
+      driverName, driverDob, driverPhone:"", driverAddress };
     if (amount) data.amount = amount;
     update(ref(db,"tpzo/"+id), data).then(()=>{ renderDetail(id); render(); });
   };
