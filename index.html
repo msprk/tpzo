@@ -748,82 +748,76 @@
     const isDone = r.status==="done";
 
     // ── TITULOK ──
-    let y = 33;
+    let y = 38;
     doc.setFontSize(11); doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
-    const titleL = doc.splitTextToSize("Záznam o použití prostriedku na zabránenie odjazdu motorového vozidla", CW);
+    const titleL = doc.splitTextToSize("Zaznam o pouziti prostriedku na zabranenie odjazdu motoroveho vozidla", CW);
     doc.text(titleL, W/2, y, {align:"center"});
-    y += titleL.length * 6 + 1;
-    doc.setFontSize(8); doc.setFont("Lato","normal"); doc.setTextColor(100,96,90);
+    y += titleL.length * 6 + 2;
+    doc.setFontSize(8); doc.setFont("Lato","normal"); doc.setTextColor(26,24,20);
     doc.text("podla par. 16a, ods. 1, zakona 564/1991 Zb. o obecnej policii.", W/2, y, {align:"center"});
+    y += 5;
+    doc.setFontSize(8); doc.setFont("Lato","normal"); doc.setTextColor(26,24,20);
+    doc.text("ID: "+rid, W-M, y, {align:"right"});
     y += 9;
 
-    // ── EČV + ID ──
-    doc.setFontSize(12); doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
-    doc.text("EČV: "+(r.spz||"—"), M, y);
-    doc.setFontSize(9); doc.setFont("Lato","normal"); doc.setTextColor(150,145,140);
-    doc.text("ID: "+rid, W-M, y, {align:"right"});
-    y += 5;
-    if(r.vehicle){ doc.setFontSize(9); doc.setTextColor(100,96,90); doc.text("Vozidlo: "+r.vehicle, M, y); y+=5; }
-    y += 4;
-
     // ── HELPER FUNKCIE ──
+    const BLK = 26,24,20;
     function row(label, value){
       if(!value && value !== 0) return;
-      doc.setFont("Lato","normal"); doc.setFontSize(9); doc.setTextColor(120,116,106);
+      doc.setFont("Lato","normal"); doc.setFontSize(9); doc.setTextColor(26,24,20);
       doc.text(label+": ", M, y);
       const lw = doc.getTextWidth(label+": ");
       doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
       const vlines = doc.splitTextToSize(String(value), CW - lw);
       doc.text(vlines[0], M+lw, y);
       y += 6;
-      if(vlines.length > 1){
-        for(let i=1;i<vlines.length;i++){ doc.text(vlines[i], M+lw, y); y+=6; }
-      }
+      for(let i=1;i<vlines.length;i++){ doc.text(vlines[i], M+lw, y); y+=6; }
     }
     function twoRow(l1,v1,l2,v2){
-      const half = W/2 - M;
-      doc.setFont("Lato","normal"); doc.setFontSize(9); doc.setTextColor(120,116,106);
+      doc.setFont("Lato","normal"); doc.setFontSize(9); doc.setTextColor(26,24,20);
       doc.text(l1+": ", M, y);
-      doc.text(l2+": ", W/2, y);
       const lw1 = doc.getTextWidth(l1+": ");
-      const lw2 = doc.getTextWidth(l2+": ");
       doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
       if(v1) doc.text(String(v1), M+lw1, y);
-      if(v2) doc.text(String(v2), W/2+lw2, y);
+      if(l2){
+        doc.setFont("Lato","normal"); doc.setTextColor(26,24,20);
+        doc.text(l2+": ", W/2, y);
+        const lw2 = doc.getTextWidth(l2+": ");
+        doc.setFont("Lato","bold");
+        if(v2) doc.text(String(v2), W/2+lw2, y);
+      }
       y += 6;
     }
     function sectionTitle(title){
-      y += 3;
-      doc.setFont("Lato","bold"); doc.setFontSize(9); doc.setTextColor(29,95,168);
+      y += 5;
+      doc.setFont("Lato","bold"); doc.setFontSize(10); doc.setTextColor(26,24,20);
       doc.text(title, M, y);
       y += 7;
     }
 
     // ── SEKTION: ZALOŽENIE ──
-    sectionTitle("ZALOŽENIE TPZOV");
-    twoRow("Dátum",r.date,"Čas",r.time);
-    twoRow("Pracovník",r.worker,"Hliadka",r.shift);
-    twoRow("EČV",r.spz,"Vozidlo",r.vehicle||"—");
+    sectionTitle("ZALOZENIE TPZOV");
+    twoRow("Datum",r.date,"Cas",r.time);
+    twoRow("Pracovnik",r.worker,"Hliadka",r.shift);
+    twoRow("ECV",r.spz,"Vozidlo",r.vehicle||"—");
     row("Miesto",r.location);
-    row("Dôvod",r.reason);
-    if(r.damage==="ano") row("Poškodenie","Áno"+(r.damageDesc?" — "+r.damageDesc:""));
-    if(r.notes) row("Poznámky",r.notes);
+    row("Dovod",r.reason);
+    if(r.damage==="ano") row("Poskodenie","Ano"+(r.damageDesc?" — "+r.damageDesc:""));
+    if(r.notes) row("Poznamky",r.notes);
 
     // ── SEKTION: ZLOŽENIE ──
     if(isDone){
-      y += 2;
-      sectionTitle("ZLOŽENIE TPZOV");
-      twoRow("Dátum",r.closeDate,"Čas",r.closeTime);
-      twoRow("Pracovník",r.closeWorker,"Spôsob",r.resolution);
-      if(r.law) row("Priestupok podľa",r.law);
+      sectionTitle("ZLOZENIE TPZOV");
+      twoRow("Datum",r.closeDate,"Cas",r.closeTime);
+      twoRow("Pracovnik",r.closeWorker,"Sposob",r.resolution);
+      if(r.law) row("Priestupok podla",r.law);
       if(r.amount) row("Suma pokuty",r.amount+" EUR");
       if(r.driverName){
-        y += 2;
-        sectionTitle("ÚDAJE VODIČA");
-        twoRow("Meno",r.driverName,"Dátum narodenia",r.driverDob?r.driverDob.split("-").reverse().join("."):"—");
-        row("Trvalý pobyt",r.driverAddress);
+        sectionTitle("UDAJE VODICA");
+        twoRow("Meno",r.driverName,"Datum narodenia",r.driverDob?r.driverDob.split("-").reverse().join("."):"—");
+        row("Trvaly pobyt",r.driverAddress);
       }
-      if(r.closeNote) row("Poznámka",r.closeNote);
+      if(r.closeNote) row("Poznamka",r.closeNote);
     }
 
     drawFooter(doc, W, M, "Evidencia TPZOV", rid);
