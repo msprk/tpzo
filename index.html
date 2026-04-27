@@ -754,7 +754,7 @@
     doc.text(titleL, W/2, y, {align:"center"});
     y += titleL.length * 6 + 1;
     doc.setFontSize(8); doc.setFont("Lato","normal"); doc.setTextColor(100,96,90);
-    doc.text("podľa §16a, ods. 1, zákona 564/1991 Zb. o obecnej polícii.", W/2, y, {align:"center"});
+    doc.text("podla par. 16a, ods. 1, zakona 564/1991 Zb. o obecnej policii.", W/2, y, {align:"center"});
     y += 9;
 
     // ── EČV + ID ──
@@ -816,7 +816,7 @@
       twoRow("Dátum",r.closeDate,"Čas",r.closeTime);
       twoRow("Pracovník",r.closeWorker,"Spôsob",r.resolution);
       if(r.law) row("Priestupok podľa",r.law);
-      if(r.amount) row("Suma pokuty",r.amount+" €");
+      if(r.amount) row("Suma pokuty",r.amount+" EUR");
       if(r.driverName){
         y += 2;
         sectionTitle("ÚDAJE VODIČA");
