@@ -206,7 +206,7 @@
       <div class="form-section">Pracovník</div>
       <div class="form-grid">
         <div class="form-group"><label>Pracovník</label><select id="f-worker"><option value="">Vybrať</option></select></div>
-        <div class="form-group"><label>Hliadka</label><select id="f-shift"><option value="">Vybrať</option><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+        <div class="form-group"><label>Hliadka</label><select id="f-shift"><option value="">Vybrať</option><option>A</option><option>B</option><option>C</option><option>D</option><option>OD</option></select></div>
       </div>
 
       <div class="form-section">Dôvod založenia</div>
@@ -457,7 +457,7 @@
           <div class="edit-group"><span class="edit-label">Hliadka</span>
             <select class="edit-field" id="e-shift">
               <option value="">Vybrať</option>
-              ${["A","B","C","D"].map(o=>`<option ${r.shift===o?"selected":""}>${o}</option>`).join("")}
+              ${["A","B","C","D","OD"].map(o=>`<option ${r.shift===o?"selected":""}>${o}</option>`).join("")}
             </select>
           </div>
           <div class="edit-group full"><span class="edit-label">Poznámky</span><textarea class="edit-field ta" id="e-notes">${r.notes||''}</textarea></div>
@@ -696,10 +696,10 @@
     document.getElementById("k-active").textContent = active;
     document.getElementById("k-done").textContent   = done;
 
-    const shifts = ["A","B","C","D"];
+    const shifts = ["A","B","C","D","OD"];
     const maxS = Math.max(...shifts.map(s=>entries.filter(r=>r.shift===s).length),1);
     const totS = entries.length||1;
-    const colors = ["#1d5fa8","#2d6a4f","#b45309","#c0392b"];
+    const colors = ["#1d5fa8","#2d6a4f","#b45309","#c0392b","#7c3aed"];
     document.getElementById("shift-breakdown").innerHTML = shifts.map((s,i)=>{
       const c = entries.filter(r=>r.shift===s).length;
       const pct = Math.round(c/totS*100);
