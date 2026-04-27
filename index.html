@@ -743,20 +743,21 @@
     const doc = new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     addFont(doc);
     const W=210,M=20,CW=W-2*M;
+    drawHeader(doc, W, M);
     const rid = id.slice(-6).toUpperCase();
     const isDone = r.status==="done";
 
     doc.setFontSize(9); doc.setFont("Lato","normal"); doc.setTextColor(170,165,160);
-    doc.text("Záznam o TPZOV", M, 14);
+    doc.text("Záznam o TPZOV", M, 35);
     doc.setFontSize(24); doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
-    doc.text(r.spz||"—", M, 26);
+    doc.text(r.spz||"—", M, 47);
     doc.setFontSize(10); doc.setFont("Lato","normal"); doc.setTextColor(150,145,140);
-    doc.text((r.vehicle||"")+"  ·  "+r.date+" "+r.time, M, 33);
-    doc.setFontSize(10); doc.text("ID: "+rid, W-M, 33, {align:"right"});
+    doc.text((r.vehicle||"")+"  ·  "+r.date+" "+r.time, M, 54);
+    doc.setFontSize(10); doc.text("ID: "+rid, W-M, 54, {align:"right"});
     doc.setDrawColor(220,217,213); doc.setLineWidth(0.3);
-    doc.line(M,37,W-M,37);
+    doc.line(M,58,W-M,58);
 
-    let y=55;
+    let y=68;
     function twoCol(l1,v1,l2,v2){
       const h=CW/2-4;
       doc.setFont("Lato","normal"); doc.setFontSize(8); doc.setTextColor(170,165,160);
