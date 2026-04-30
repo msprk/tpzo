@@ -433,6 +433,45 @@
 
     if (editId === id) {
       // EDIT MODE
+      const closePart = isDone ? `
+        <div style="padding:10px 16px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--green);border-top:.5px solid var(--border);margin-top:4px">Zloženie TPZOV</div>
+        <div class="edit-grid">
+          <div class="edit-group"><span class="edit-label">Dátum zloženia</span><input class="edit-field" type="date" id="e-closeDate" value="${r.closeDate||''}"/></div>
+          <div class="edit-group"><span class="edit-label">Čas zloženia</span><input class="edit-field" type="time" id="e-closeTime" value="${r.closeTime||''}"/></div>
+          <div class="edit-group"><span class="edit-label">Pracovník (zložil)</span>
+            <select class="edit-field" id="e-closeWorker">
+              <option value="">Vybrať</option>
+              ${Array.from({length:39},(_,i)=>{const c=String(i+1).padStart(3,"0");return `<option value="${c}" ${r.closeWorker===c?"selected":""}>${c}</option>`;}).join("")}
+            </select>
+          </div>
+          <div class="edit-group"><span class="edit-label">Spôsob riešenia</span>
+            <select class="edit-field" id="e-resolution" onchange="editToggleAmount()">
+              <option value="">Vybrať</option>
+              ${["Bez riešenia","Napomenutie","Bloková pokuta","Bloková pokuta nezaplatená na mieste","Odstúpenie SVOP"].map(o=>`<option ${r.resolution===o?"selected":""}>${o}</option>`).join("")}
+            </select>
+          </div>
+          <div class="edit-group" id="e-amount-wrap" style="display:${(r.resolution||"").includes("pokuta")?"":"none"}">
+            <span class="edit-label">Suma pokuty</span>
+            <select class="edit-field" id="e-amount">
+              ${Array.from({length:15},(_,i)=>{const v=(i+1)*10;return `<option value="${v}" ${r.amount==v?"selected":""}>${v} €</option>`;}).join("")}
+            </select>
+          </div>
+          <div class="edit-group full"><span class="edit-label">Priestupok podľa</span>
+            <select class="edit-field" id="e-law">
+              <option value="">Vybrať</option>
+              <option value="§22/1/l zákona 372/1990 Z.z" ${r.law==="§22/1/l zákona 372/1990 Z.z"?"selected":""}>§22/1/l zákona 372/1990 Z.z</option>
+              <option value="§22/1/k zákona 372/1990 Z.z" ${r.law==="§22/1/k zákona 372/1990 Z.z"?"selected":""}>§22/1/k zákona 372/1990 Z.z</option>
+            </select>
+          </div>
+          <div class="edit-group full"><span class="edit-label">Poznámka k uzavretiu</span><textarea class="edit-field ta" id="e-closeNote">${r.closeNote||''}</textarea></div>
+        </div>
+        <div style="padding:10px 16px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--green);border-top:.5px solid var(--border)">Údaje vodiča</div>
+        <div class="edit-grid">
+          <div class="edit-group"><span class="edit-label">Meno vodiča</span><input class="edit-field" id="e-driverName" value="${r.driverName||''}"/></div>
+          <div class="edit-group"><span class="edit-label">Dátum narodenia</span><input class="edit-field" type="date" id="e-driverDob" value="${r.driverDob||''}"/></div>
+          <div class="edit-group full"><span class="edit-label">Trvalý pobyt</span><input class="edit-field" id="e-driverAddress" value="${r.driverAddress||''}"/></div>
+        </div>` : "";
+
       panel.innerHTML = `
         <div class="dp-header">
           <div>
@@ -441,6 +480,7 @@
           </div>
           <button class="dp-close" onclick="cancelEdit()">×</button>
         </div>
+        <div style="padding:10px 16px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Založenie TPZOV</div>
         <div class="edit-grid">
           <div class="edit-group"><span class="edit-label">Dátum založenia</span><input class="edit-field" type="date" id="e-date" value="${r.date||''}"/></div>
           <div class="edit-group"><span class="edit-label">Čas založenia</span><input class="edit-field" type="time" id="e-time" value="${r.time||''}"/></div>
@@ -462,6 +502,7 @@
           </div>
           <div class="edit-group full"><span class="edit-label">Poznámky</span><textarea class="edit-field ta" id="e-notes">${r.notes||''}</textarea></div>
         </div>
+        ${closePart}
         <div class="edit-footer">
           <button class="edit-save" onclick="saveEdit('${id}')">Uložiť zmeny</button>
           <button class="edit-cancel" onclick="cancelEdit()">Zrušiť</button>
@@ -577,12 +618,28 @@
   window.cancelEdit  = ()  => { editId=null; renderDetail(openId); };
 
   window.saveEdit = id => {
+    const r = allRecords[id]; if(!r) return;
     const g = s => { const el=document.getElementById(s); return el?el.value.trim():""; };
-    update(ref(db,"tpzo/"+id), {
+    const data = {
       date:g("e-date"), time:g("e-time"), spz:g("e-spz").toUpperCase(),
       vehicle:g("e-vehicle"), location:g("e-location"), reason:g("e-reason"),
       worker:g("e-worker"), shift:g("e-shift"), notes:g("e-notes")
-    }).then(()=>{ editId=null; renderDetail(id); render(); });
+    };
+    // ak je zaznam uzavrety, uloz aj druhu cast
+    if (r.status === "done") {
+      data.closeDate    = g("e-closeDate");
+      data.closeTime    = g("e-closeTime");
+      data.closeWorker  = g("e-closeWorker");
+      data.resolution   = g("e-resolution");
+      data.law          = g("e-law");
+      data.closeNote    = g("e-closeNote");
+      data.driverName   = g("e-driverName");
+      data.driverDob    = g("e-driverDob");
+      data.driverAddress= g("e-driverAddress");
+      const amountWrap = document.getElementById("e-amount-wrap");
+      data.amount = (amountWrap && amountWrap.style.display !== "none") ? g("e-amount") : "";
+    }
+    update(ref(db,"tpzo/"+id), data).then(()=>{ editId=null; renderDetail(id); render(); });
   };
 
   window.completeRecord = id => {
@@ -614,6 +671,12 @@
   window.toggleAmount = () => {
     const res = document.getElementById("c-resolution")?.value||"";
     const wrap = document.getElementById("c-amount-wrap");
+    if(wrap) wrap.style.display = res.includes("pokuta") ? "" : "none";
+  };
+
+  window.editToggleAmount = () => {
+    const res = document.getElementById("e-resolution")?.value||"";
+    const wrap = document.getElementById("e-amount-wrap");
     if(wrap) wrap.style.display = res.includes("pokuta") ? "" : "none";
   };
 
