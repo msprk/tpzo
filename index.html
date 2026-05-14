@@ -293,6 +293,7 @@
   </div>
 </nav>
 
+<script src="https://msprk.github.io/firebase-config.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, onValue, push, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -308,17 +309,8 @@
     doc.setFont("Lato", "normal");
   }
 
-  const firebaseConfig = {
-    apiKey:            "AIzaSyDOYPIXjbW3mrFpospLjTbt6ui4I318sg8",
-    authDomain:        "msprk-app.firebaseapp.com",
-    databaseURL:       "https://msprk-app-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId:         "msprk-app",
-    storageBucket:     "msprk-app.firebasestorage.app",
-    messagingSenderId: "544350754193",
-    appId:             "1:544350754193:web:acb050a43126437790f630"
-  };
 
-  const app    = initializeApp(firebaseConfig);
+  const app    = initializeApp(window.FIREBASE_CONFIG);
 
   // ── AUTH GUARD ──
   const auth = getAuth(app);
@@ -347,6 +339,21 @@
     document.getElementById("status-dot").className = "dot"+(on?" on":"");
     document.getElementById("status-text").textContent = on ? "Online" : "Offline";
   }
+  function escapeHtml(s) {
+    if (s == null) return "";
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function showToast(msg) {
+    const t = document.createElement("div");
+    t.style.cssText = "position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#c0392b;color:#fff;padding:10px 20px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:90vw;text-align:center;pointer-events:none;transition:opacity .3s";
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.style.opacity = "0", 3500);
+    setTimeout(() => t.remove(), 3800);
+  }
+
+
 
   onValue(dbRef, snap => {
     allRecords = snap.val()||{};
@@ -386,8 +393,8 @@
           <div class="record-header" onclick="openDetail('${r.id}')">
             <div class="rec-icon ${isDone?"done":""}">🔒</div>
             <div class="rec-main">
-              <div class="rec-title">${r.spz||"—"}${r.vehicle?" · "+r.vehicle:""}${r.location?" · "+r.location:""}</div>
-              <div class="rec-sub">${r.date||""} ${r.time||""} · Hliadka ${r.shift||"—"}</div>
+              <div class="rec-title">${escapeHtml(r.spz||"—")}${r.vehicle?" · "+escapeHtml(r.vehicle):""}${r.location?" · "+escapeHtml(r.location):""}</div>
+              <div class="rec-sub">${escapeHtml(r.date||"")} ${escapeHtml(r.time||"")} · Hliadka ${escapeHtml(r.shift||"—")}</div>
               <div class="rec-id">ID: ${rid}</div>
             </div>
             ${badge}
@@ -475,7 +482,7 @@
       panel.innerHTML = `
         <div class="dp-header">
           <div>
-            <div class="dp-spz">${r.spz||"—"}</div>
+            <div class="dp-spz">${escapeHtml(r.spz||"—")}</div>
             <div style="font-size:12px;color:var(--muted);margin-top:2px">Editovanie záznamu</div>
           </div>
           <button class="dp-close" onclick="cancelEdit()">×</button>
@@ -559,8 +566,8 @@
       <div class="dp-header" onclick="closeDetail()" style="cursor:pointer" title="Zavrieť">
         <div style="display:flex;align-items:center;gap:10px">
           <div>
-            <div class="dp-spz">${r.spz||"—"}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:3px">${r.vehicle||""} · ID: ${rid}</div>
+            <div class="dp-spz">${escapeHtml(r.spz||"—")}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:3px">${escapeHtml(r.vehicle||"")} · ID: ${rid}</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
@@ -576,10 +583,10 @@
             <div><div class="dp-field-label">Čas</div><div class="dp-field-val">${r.time||"—"}</div></div>
             <div><div class="dp-field-label">Pracovník</div><div class="dp-field-val">${r.worker||"—"}</div></div>
             <div><div class="dp-field-label">Hliadka</div><div class="dp-field-val">${r.shift||"—"}</div></div>
-            <div style="grid-column:1/-1"><div class="dp-field-label">Miesto</div><div class="dp-field-val">${r.location||"—"}</div></div>
-            <div style="grid-column:1/-1"><div class="dp-field-label">Dôvod</div><div class="dp-field-val" style="font-weight:400;line-height:1.5">${r.reason||"—"}</div></div>
+            <div style="grid-column:1/-1"><div class="dp-field-label">Miesto</div><div class="dp-field-val">${escapeHtml(r.location||"—")}</div></div>
+            <div style="grid-column:1/-1"><div class="dp-field-label">Dôvod</div><div class="dp-field-val" style="font-weight:400;line-height:1.5">${escapeHtml(r.reason||"—")}</div></div>
             ${r.damage==="ano"?`<div style="grid-column:1/-1"><div class="dp-field-label">Poškodenie pri zakladaní</div><div class="dp-field-val" style="color:var(--red)">Áno — ${r.damageDesc||""}</div></div>`:""}
-            ${r.notes?`<div style="grid-column:1/-1"><div class="dp-field-label">Poznámky</div><div class="dp-field-val" style="font-weight:400">${r.notes}</div></div>`:""}
+            ${r.notes?`<div style="grid-column:1/-1"><div class="dp-field-label">Poznámky</div><div class="dp-field-val" style="font-weight:400">${escapeHtml(r.notes)}</div></div>`:""}
             ${r.photoUrl?`<div style="grid-column:1/-1;margin-top:6px"><img src="${r.photoUrl}" style="width:100%;border-radius:8px;max-height:200px;object-fit:cover"/></div>`:""}
           </div>
         </div>
@@ -593,11 +600,11 @@
             <div><div class="dp-field-label">Spôsob riešenia</div><div class="dp-field-val">${r.resolution||"—"}</div></div>
             ${r.amount?`<div><div class="dp-field-label">Suma pokuty</div><div class="dp-field-val">${r.amount} €</div></div>`:""}
             ${r.driverName?`<div style="grid-column:1/-1;border-top:.5px solid rgba(45,106,79,.2);padding-top:8px;margin-top:4px"><div class="dp-field-label" style="color:var(--green);font-weight:600;margin-bottom:6px">Údaje vodiča</div></div>`:""}
-            ${r.driverName?`<div><div class="dp-field-label">Meno</div><div class="dp-field-val">${r.driverName}</div></div>`:""}
+            ${r.driverName?`<div><div class="dp-field-label">Meno</div><div class="dp-field-val">${escapeHtml(r.driverName)}</div></div>`:""}
             ${r.driverDob?`<div><div class="dp-field-label">Dátum narodenia</div><div class="dp-field-val">${r.driverDob.split("-").reverse().join(".")}</div></div>`:""}
             ${r.law?`<div style="grid-column:1/-1"><div class="dp-field-label">Priestupok podľa</div><div class="dp-field-val" style="font-size:12px;font-weight:400">${r.law}</div></div>`:""}
-            ${r.driverAddress?`<div style="grid-column:1/-1"><div class="dp-field-label">Trvalý pobyt</div><div class="dp-field-val">${r.driverAddress}</div></div>`:""}
-            ${r.closeNote?`<div style="grid-column:1/-1"><div class="dp-field-label">Poznámka</div><div class="dp-field-val" style="font-weight:400">${r.closeNote}</div></div>`:""}
+            ${r.driverAddress?`<div style="grid-column:1/-1"><div class="dp-field-label">Trvalý pobyt</div><div class="dp-field-val">${escapeHtml(r.driverAddress)}</div></div>`:""}
+            ${r.closeNote?`<div style="grid-column:1/-1"><div class="dp-field-label">Poznámka</div><div class="dp-field-val" style="font-weight:400">${escapeHtml(r.closeNote)}</div></div>`:""}
           </div>
         </div>` : completeSection}
         <div class="dp-actions">
@@ -656,14 +663,14 @@
     const driverAddress = document.getElementById("c-driver-address")?.value.trim()||"";
     const amountWrap = document.getElementById("c-amount-wrap");
     const amount = amountWrap && amountWrap.style.display!=="none" ? document.getElementById("c-amount")?.value : "";
-    if (!date)          { alert("Vyplňte dátum zloženia."); return; }
-    if (!time)          { alert("Vyplňte čas zloženia."); return; }
-    if (!worker)        { alert("Vyplňte pracovníka."); return; }
-    if (!res)           { alert("Vyplňte spôsob riešenia."); return; }
-    if (!law)           { alert("Vyplňte priestupok podľa."); return; }
-    if (!driverName)    { alert("Vyplňte meno vodiča."); return; }
-    if (!driverDob)     { alert("Vyplňte dátum narodenia vodiča."); return; }
-    if (!driverAddress) { alert("Vyplňte trvalý pobyt vodiča."); return; }
+    if (!date)          { showToast("Vyplňte dátum zloženia."); return; }
+    if (!time)          { showToast("Vyplňte čas zloženia."); return; }
+    if (!worker)        { showToast("Vyplňte pracovníka."); return; }
+    if (!res)           { showToast("Vyplňte spôsob riešenia."); return; }
+    if (!law)           { showToast("Vyplňte priestupok podľa."); return; }
+    if (!driverName)    { showToast("Vyplňte meno vodiča."); return; }
+    if (!driverDob)     { showToast("Vyplňte dátum narodenia vodiča."); return; }
+    if (!driverAddress) { showToast("Vyplňte trvalý pobyt vodiča."); return; }
     const data = { status:"done", closeDate:date, closeTime:time, closeWorker:worker, resolution:res, law, closeNote:note||"",
       driverName, driverDob, driverPhone:"", driverAddress };
     if (amount) data.amount = amount;
@@ -716,7 +723,7 @@
     const spz  = document.getElementById("f-spz").value.trim().toUpperCase();
     const date = document.getElementById("f-date").value;
     const loc  = document.getElementById("f-location").value.trim();
-    if (!spz||!date||!loc) { alert("Vyplňte ŠPZ, dátum a miesto."); return; }
+    if (!spz||!date||!loc) { showToast("Vyplňte ŠPZ, dátum a miesto."); return; }
     const btn = document.getElementById("submit-btn");
     btn.disabled=true; btn.textContent="Ukladanie...";
     const reasonSel = document.getElementById("f-reason").value;
