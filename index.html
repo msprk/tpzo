@@ -323,7 +323,7 @@
   // ── AUTH GUARD ──
   const auth = getAuth(app);
   onAuthStateChanged(auth, user => {
-    if (!user) window.location.href = "https://msprk.github.io/";
+    if (!user) window.location.href = "/";
   });
   // ────────────────
   const db     = getDatabase(app);
@@ -639,7 +639,9 @@
       const amountWrap = document.getElementById("e-amount-wrap");
       data.amount = (amountWrap && amountWrap.style.display !== "none") ? g("e-amount") : "";
     }
-    update(ref(db,"tpzo/"+id), data).then(()=>{ editId=null; renderDetail(id); render(); });
+    update(ref(db,"tpzo/"+id), data)
+      .then(()=>{ editId=null; renderDetail(id); render(); })
+      .catch(err=>{ alert("Chyba ukladania: "+err.message); });
   };
 
   window.completeRecord = id => {
@@ -665,7 +667,9 @@
     const data = { status:"done", closeDate:date, closeTime:time, closeWorker:worker, resolution:res, law, closeNote:note||"",
       driverName, driverDob, driverPhone:"", driverAddress };
     if (amount) data.amount = amount;
-    update(ref(db,"tpzo/"+id), data).then(()=>{ renderDetail(id); render(); });
+    update(ref(db,"tpzo/"+id), data)
+      .then(()=>{ renderDetail(id); render(); })
+      .catch(err=>{ alert("Chyba ukladania: "+err.message); });
   };
 
   window.toggleAmount = () => {
@@ -734,6 +738,7 @@
       ts:         Date.now()
     }).then(()=>{
       btn.disabled=false; btn.textContent="Založiť záznam TPZOV";
+
       ["f-spz","f-vehicle","f-location","f-notes","f-reason-other","f-damage-desc"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
       document.getElementById("f-reason").value="";
       document.getElementById("f-damage").value="nie";
@@ -747,7 +752,7 @@
       document.getElementById("f-date").value=n.toISOString().split("T")[0];
       document.getElementById("f-time").value=n.toTimeString().slice(0,5);
       switchTab("zoznam");
-    });
+    }).catch(err=>{ btn.disabled=false; btn.textContent="Založiť záznam TPZOV"; alert("Chyba ukladania: "+err.message); });
   };
 
   // ── STATS ──
