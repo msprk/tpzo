@@ -162,6 +162,9 @@
 .dob-yyyy{width:68px;min-width:68px}
 .dob-sep{font-size:16px;font-weight:600;color:var(--text);user-select:none;padding-top:7px}
 .dob-lbl{font-size:10px;color:#888;margin-top:3px;letter-spacing:.03em;white-space:nowrap}
+
+.photo-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
+.photo-lightbox img{max-width:95vw;max-height:92vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6);cursor:default}
 </style>
 </head>
 <body>
@@ -627,7 +630,7 @@
             <div style="grid-column:1/-1"><div class="dp-field-label">Dôvod</div><div class="dp-field-val" style="font-weight:400;line-height:1.5">${escapeHtml(r.reason||"—")}</div></div>
             ${r.damage==="ano"?`<div style="grid-column:1/-1"><div class="dp-field-label">Poškodenie pri zakladaní</div><div class="dp-field-val" style="color:var(--red)">Áno — ${r.damageDesc||""}</div></div>`:""}
             ${r.notes?`<div style="grid-column:1/-1"><div class="dp-field-label">Poznámky</div><div class="dp-field-val" style="font-weight:400">${escapeHtml(r.notes)}</div></div>`:""}
-            ${r.photoUrl?`<div style="grid-column:1/-1;margin-top:6px"><img src="${r.photoUrl}" style="width:100%;border-radius:8px;max-height:200px;object-fit:cover"/></div>`:""}
+            ${r.photoUrl?`<div style="grid-column:1/-1;margin-top:6px"><img src="${r.photoUrl}" style="width:100%;border-radius:8px;max-height:300px;object-fit:cover;cursor:zoom-in" onclick="openPhotoLightbox(this.src)" title="Kliknite pre plnú veľkosť"/></div>`:""}
           </div>
         </div>
         ${isDone ? `
@@ -949,6 +952,18 @@
     if(tab==="zoznam") document.getElementById("nav-zoznam").classList.add("active");
     if(tab==="stats")  { document.getElementById("nav-stats").classList.add("active"); renderStats(); }
   };
+window.openPhotoLightbox = src => {
+  const lb = document.createElement('div');
+  lb.className = 'photo-lightbox';
+  const img = document.createElement('img');
+  img.src = src;
+  img.addEventListener('click', e => e.stopPropagation());
+  lb.appendChild(img);
+  lb.addEventListener('click', () => lb.remove());
+  document.addEventListener('keydown', function esc(e){ if(e.key==='Escape'){ lb.remove(); document.removeEventListener('keydown',esc); } });
+  document.body.appendChild(lb);
+};
+
 // DOB: len číslice + auto-posun fokus po 2 cifrach (mobile-safe setTimeout)
 document.body.addEventListener('input', e => {
   const el = e.target;
