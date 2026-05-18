@@ -6,19 +6,18 @@
   <title>Evidencia TPZOV</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-// DOB auto-focus: po 2 cifrach posun na ďalšie pole
+// DOB: len číslice + auto-posun fokus po 2 cifrach (mobile-safe setTimeout)
 document.body.addEventListener('input', e => {
   const el = e.target;
-  if (el.classList.contains('dob-dd') && el.value.replace(/\D/g,'').length >= 2) {
+  const isDob = el.classList.contains('dob-dd') || el.classList.contains('dob-mm') || el.classList.contains('dob-yyyy');
+  if (!isDob) return;
+  el.value = el.value.replace(/\D/g, '');
+  if (el.classList.contains('dob-dd') && el.value.length >= 2) {
     const next = el.closest('.dob-wrap')?.querySelector('.dob-mm');
-    if (next) next.focus();
-  } else if (el.classList.contains('dob-mm') && el.value.replace(/\D/g,'').length >= 2) {
+    if (next) setTimeout(() => next.focus(), 0);
+  } else if (el.classList.contains('dob-mm') && el.value.length >= 2) {
     const next = el.closest('.dob-wrap')?.querySelector('.dob-yyyy');
-    if (next) next.focus();
-  }
-  // len číslice povolené
-  if (el.classList.contains('dob-dd') || el.classList.contains('dob-mm') || el.classList.contains('dob-yyyy')) {
-    el.value = el.value.replace(/\D/g,'');
+    if (next) setTimeout(() => next.focus(), 0);
   }
 });
 </script>
@@ -171,11 +170,13 @@ document.body.addEventListener('input', e => {
       .kpi-grid{grid-template-columns:repeat(2,1fr)}
     }
   
-.dob-wrap{display:inline-flex;align-items:center;gap:2px;width:100%}
+.dob-wrap{display:inline-flex;align-items:flex-start;gap:4px;width:100%}
 .dob-wrap .edit-field{text-align:center;padding:0 4px}
-.dob-dd,.dob-mm{width:46px;min-width:46px;flex:0 0 46px}
-.dob-yyyy{width:66px;min-width:66px;flex:0 0 66px}
-.dob-sep{font-size:16px;font-weight:600;color:var(--text);user-select:none;line-height:1}
+.dob-col{display:flex;flex-direction:column;align-items:center}
+.dob-dd,.dob-mm{width:48px;min-width:48px}
+.dob-yyyy{width:68px;min-width:68px}
+.dob-sep{font-size:16px;font-weight:600;color:var(--text);user-select:none;padding-top:7px}
+.dob-lbl{font-size:10px;color:#888;margin-top:3px;letter-spacing:.03em;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -499,11 +500,20 @@ document.body.addEventListener('input', e => {
           <div class="edit-group"><span class="edit-label">Meno vodiča</span><input class="edit-field" id="e-driverName" value="${r.driverName||''}"/></div>
           <div class="edit-group"><span class="edit-label">Dátum narodenia</span>
           <span class="dob-wrap">
-            <input class="edit-field dob-dd" id="e-dob-dd" maxlength="2" placeholder="DD" inputmode="numeric" value="${r.driverDob?(r.driverDob.split('-')[2]||''):''}"/>
+            <span class="dob-col">
+              <input class="edit-field dob-dd" id="e-dob-dd" maxlength="2" placeholder="DD" inputmode="numeric" value="${r.driverDob?(r.driverDob.split('-')[2]||''):''}"/>
+              <span class="dob-lbl">Deň</span>
+            </span>
             <span class="dob-sep">.</span>
-            <input class="edit-field dob-mm" id="e-dob-mm" maxlength="2" placeholder="MM" inputmode="numeric" value="${r.driverDob?(r.driverDob.split('-')[1]||''):''}"/>
+            <span class="dob-col">
+              <input class="edit-field dob-mm" id="e-dob-mm" maxlength="2" placeholder="MM" inputmode="numeric" value="${r.driverDob?(r.driverDob.split('-')[1]||''):''}"/>
+              <span class="dob-lbl">Mesiac</span>
+            </span>
             <span class="dob-sep">.</span>
-            <input class="edit-field dob-yyyy" id="e-dob-yyyy" maxlength="4" placeholder="RRRR" inputmode="numeric" value="${r.driverDob?(r.driverDob.split('-')[0]||''):''}"/>
+            <span class="dob-col">
+              <input class="edit-field dob-yyyy" id="e-dob-yyyy" maxlength="4" placeholder="RRRR" inputmode="numeric" value="${r.driverDob?(r.driverDob.split('-')[0]||''):''}"/>
+              <span class="dob-lbl">Rok</span>
+            </span>
           </span></div>
           <div class="edit-group full"><span class="edit-label">Trvalý pobyt</span><input class="edit-field" id="e-driverAddress" value="${r.driverAddress||''}"/></div>
         </div>` : "";
@@ -555,11 +565,20 @@ document.body.addEventListener('input', e => {
           <div class="edit-group"><span class="edit-label">Meno vodiča</span><input class="edit-field" id="c-driver-name" placeholder="Meno a priezvisko"/></div>
           <div class="edit-group"><span class="edit-label">Dátum narodenia</span>
           <span class="dob-wrap">
-            <input class="edit-field dob-dd" id="c-dob-dd" maxlength="2" placeholder="DD" inputmode="numeric"/>
+            <span class="dob-col">
+              <input class="edit-field dob-dd" id="c-dob-dd" maxlength="2" placeholder="DD" inputmode="numeric"/>
+              <span class="dob-lbl">Deň</span>
+            </span>
             <span class="dob-sep">.</span>
-            <input class="edit-field dob-mm" id="c-dob-mm" maxlength="2" placeholder="MM" inputmode="numeric"/>
+            <span class="dob-col">
+              <input class="edit-field dob-mm" id="c-dob-mm" maxlength="2" placeholder="MM" inputmode="numeric"/>
+              <span class="dob-lbl">Mesiac</span>
+            </span>
             <span class="dob-sep">.</span>
-            <input class="edit-field dob-yyyy" id="c-dob-yyyy" maxlength="4" placeholder="RRRR" inputmode="numeric"/>
+            <span class="dob-col">
+              <input class="edit-field dob-yyyy" id="c-dob-yyyy" maxlength="4" placeholder="RRRR" inputmode="numeric"/>
+              <span class="dob-lbl">Rok</span>
+            </span>
           </span></div>
           <div class="edit-group"><span class="edit-label">Trvalý pobyt</span><input class="edit-field" id="c-driver-address" placeholder="Adresa..."/></div>
           <div class="edit-group full"><span class="edit-label" style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;display:block;margin-top:4px">Zloženie TPZOV</span></div>
