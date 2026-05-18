@@ -5,22 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Evidencia TPZOV</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-// DOB: len číslice + auto-posun fokus po 2 cifrach (mobile-safe setTimeout)
-document.body.addEventListener('input', e => {
-  const el = e.target;
-  const isDob = el.classList.contains('dob-dd') || el.classList.contains('dob-mm') || el.classList.contains('dob-yyyy');
-  if (!isDob) return;
-  el.value = el.value.replace(/\D/g, '');
-  if (el.classList.contains('dob-dd') && el.value.length >= 2) {
-    const next = el.closest('.dob-wrap')?.querySelector('.dob-mm');
-    if (next) setTimeout(() => next.focus(), 0);
-  } else if (el.classList.contains('dob-mm') && el.value.length >= 2) {
-    const next = el.closest('.dob-wrap')?.querySelector('.dob-yyyy');
-    if (next) setTimeout(() => next.focus(), 0);
-  }
-});
-</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -964,6 +949,20 @@ document.body.addEventListener('input', e => {
     if(tab==="zoznam") document.getElementById("nav-zoznam").classList.add("active");
     if(tab==="stats")  { document.getElementById("nav-stats").classList.add("active"); renderStats(); }
   };
+// DOB: len číslice + auto-posun fokus po 2 cifrach (mobile-safe setTimeout)
+document.body.addEventListener('input', e => {
+  const el = e.target;
+  const isDob = el.classList.contains('dob-dd') || el.classList.contains('dob-mm') || el.classList.contains('dob-yyyy');
+  if (!isDob) return;
+  el.value = el.value.replace(/\D/g, '');
+  if (el.classList.contains('dob-dd') && el.value.length >= 2) {
+    const next = el.closest('.dob-wrap')?.querySelector('.dob-mm');
+    if (next) setTimeout(() => next.focus(), 0);
+  } else if (el.classList.contains('dob-mm') && el.value.length >= 2) {
+    const next = el.closest('.dob-wrap')?.querySelector('.dob-yyyy');
+    if (next) setTimeout(() => next.focus(), 0);
+  }
+});
 </script>
 </body>
 </html>
