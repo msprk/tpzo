@@ -5,7 +5,23 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Evidencia TPZOV</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+// DOB auto-focus: po 2 cifrach posun na ďalšie pole
+document.body.addEventListener('input', e => {
+  const el = e.target;
+  if (el.classList.contains('dob-dd') && el.value.replace(/\D/g,'').length >= 2) {
+    const next = el.closest('.dob-wrap')?.querySelector('.dob-mm');
+    if (next) next.focus();
+  } else if (el.classList.contains('dob-mm') && el.value.replace(/\D/g,'').length >= 2) {
+    const next = el.closest('.dob-wrap')?.querySelector('.dob-yyyy');
+    if (next) next.focus();
+  }
+  // len číslice povolené
+  if (el.classList.contains('dob-dd') || el.classList.contains('dob-mm') || el.classList.contains('dob-yyyy')) {
+    el.value = el.value.replace(/\D/g,'');
+  }
+});
+</script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -154,7 +170,13 @@
       .form-grid,.dp-grid,.edit-grid{grid-template-columns:1fr}
       .kpi-grid{grid-template-columns:repeat(2,1fr)}
     }
-  </style>
+  
+.dob-wrap{display:inline-flex;align-items:center;gap:2px;width:100%}
+.dob-wrap .edit-field{text-align:center;padding:0 4px}
+.dob-dd,.dob-mm{width:46px;min-width:46px;flex:0 0 46px}
+.dob-yyyy{width:66px;min-width:66px;flex:0 0 66px}
+.dob-sep{font-size:16px;font-weight:600;color:var(--text);user-select:none;line-height:1}
+</style>
 </head>
 <body>
 
@@ -475,7 +497,14 @@
         <div style="padding:10px 16px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--green);border-top:.5px solid var(--border)">Údaje vodiča</div>
         <div class="edit-grid">
           <div class="edit-group"><span class="edit-label">Meno vodiča</span><input class="edit-field" id="e-driverName" value="${r.driverName||''}"/></div>
-          <div class="edit-group"><span class="edit-label">Dátum narodenia</span><input class="edit-field" type="date" id="e-driverDob" value="${r.driverDob||''}"/></div>
+          <div class="edit-group"><span class="edit-label">Dátum narodenia</span>
+          <span class="dob-wrap">
+            <input class="edit-field dob-dd" id="e-dob-dd" maxlength="2" placeholder="DD" inputmode="numeric" value="${r.driverDob?(r.driverDob.split('-')[2]||''):''}"/>
+            <span class="dob-sep">.</span>
+            <input class="edit-field dob-mm" id="e-dob-mm" maxlength="2" placeholder="MM" inputmode="numeric" value="${r.driverDob?(r.driverDob.split('-')[1]||''):''}"/>
+            <span class="dob-sep">.</span>
+            <input class="edit-field dob-yyyy" id="e-dob-yyyy" maxlength="4" placeholder="RRRR" inputmode="numeric" value="${r.driverDob?(r.driverDob.split('-')[0]||''):''}"/>
+          </span></div>
           <div class="edit-group full"><span class="edit-label">Trvalý pobyt</span><input class="edit-field" id="e-driverAddress" value="${r.driverAddress||''}"/></div>
         </div>` : "";
 
@@ -524,7 +553,14 @@
         <div class="edit-grid" style="padding:0;margin-bottom:10px">
           <div class="edit-group full"><span class="edit-label" style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;display:block">Údaje vodiča</span></div>
           <div class="edit-group"><span class="edit-label">Meno vodiča</span><input class="edit-field" id="c-driver-name" placeholder="Meno a priezvisko"/></div>
-          <div class="edit-group"><span class="edit-label">Dátum narodenia</span><input class="edit-field" type="date" id="c-driver-id"/></div>
+          <div class="edit-group"><span class="edit-label">Dátum narodenia</span>
+          <span class="dob-wrap">
+            <input class="edit-field dob-dd" id="c-dob-dd" maxlength="2" placeholder="DD" inputmode="numeric"/>
+            <span class="dob-sep">.</span>
+            <input class="edit-field dob-mm" id="c-dob-mm" maxlength="2" placeholder="MM" inputmode="numeric"/>
+            <span class="dob-sep">.</span>
+            <input class="edit-field dob-yyyy" id="c-dob-yyyy" maxlength="4" placeholder="RRRR" inputmode="numeric"/>
+          </span></div>
           <div class="edit-group"><span class="edit-label">Trvalý pobyt</span><input class="edit-field" id="c-driver-address" placeholder="Adresa..."/></div>
           <div class="edit-group full"><span class="edit-label" style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;display:block;margin-top:4px">Zloženie TPZOV</span></div>
           <div class="edit-group"><span class="edit-label">Dátum zloženia</span><input class="edit-field" type="date" id="c-date" value="${new Date().toISOString().split('T')[0]}"/></div>
@@ -641,7 +677,7 @@
       data.law          = g("e-law");
       data.closeNote    = g("e-closeNote");
       data.driverName   = g("e-driverName");
-      data.driverDob    = g("e-driverDob");
+      { const dd=(document.getElementById("e-dob-dd")?.value.trim()||"").padStart(2,"0"),mm=(document.getElementById("e-dob-mm")?.value.trim()||"").padStart(2,"0"),yyyy=document.getElementById("e-dob-yyyy")?.value.trim()||""; data.driverDob=(yyyy&&mm&&dd)?yyyy+"-"+mm+"-"+dd:""; }
       data.driverAddress= g("e-driverAddress");
       const amountWrap = document.getElementById("e-amount-wrap");
       data.amount = (amountWrap && amountWrap.style.display !== "none") ? g("e-amount") : "";
@@ -659,7 +695,8 @@
     const law    = document.getElementById("c-law")?.value;
     const note   = document.getElementById("c-note")?.value.trim();
     const driverName    = document.getElementById("c-driver-name")?.value.trim()||"";
-    const driverDob     = document.getElementById("c-driver-id")?.value||"";
+    const _cDD=document.getElementById("c-dob-dd")?.value.trim()||"",_cMM=document.getElementById("c-dob-mm")?.value.trim()||"",_cYYYY=document.getElementById("c-dob-yyyy")?.value.trim()||"";
+    const driverDob=(_cYYYY&&_cMM&&_cDD)?_cYYYY+"-"+_cMM.padStart(2,"0")+"-"+_cDD.padStart(2,"0"):"";
     const driverAddress = document.getElementById("c-driver-address")?.value.trim()||"";
     const amountWrap = document.getElementById("c-amount-wrap");
     const amount = amountWrap && amountWrap.style.display!=="none" ? document.getElementById("c-amount")?.value : "";
