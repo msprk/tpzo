@@ -351,7 +351,7 @@
   const db     = getDatabase(app);
   const dbRef  = ref(db, "tpzo");
 
-  let allRecords = {}, openId = null, editId = null, photoData = null;
+  let allRecords = {}, openId = null, editId = null, photoData = null, editPhotoData = undefined;
 
   // Worker dropdown
   const wSel = document.getElementById("f-worker");
@@ -555,6 +555,17 @@
           </div>
           <div class="edit-group full"><span class="edit-label">Poznámky</span><textarea class="edit-field ta" id="e-notes">${r.notes||''}</textarea></div>
         </div>
+        <div style="padding:10px 16px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Fotografia</div>
+        <div style="padding:0 16px 12px">
+          ${r.photoUrl ? `<img id="e-photo-current" src="${r.photoUrl}" style="width:100%;max-height:200px;object-fit:cover;border-radius:var(--radius);margin-bottom:8px;cursor:zoom-in" onclick="openLightbox(this.src)"/>
+          <button onclick="removeEditPhoto()" style="display:block;font-size:12px;color:var(--red);background:none;border:none;cursor:pointer;padding:0;margin-bottom:8px">Odstrániť fotku</button>` : ""}
+          <img id="e-photo-new-preview" style="display:none;width:100%;max-height:200px;object-fit:cover;border-radius:var(--radius);margin-bottom:8px"/>
+          <div class="photo-upload" onclick="document.getElementById('e-photo-input').click()">
+            <div style="font-size:20px;margin-bottom:4px">📷</div>
+            <div style="font-size:13px;color:var(--muted)">${r.photoUrl ? "Zmeniť fotografiu" : "Pridať fotografiu"}</div>
+            <input type="file" id="e-photo-input" accept="image/*" onchange="previewEditPhoto(this)" style="display:none"/>
+          </div>
+        </div>
         ${closePart}
         <div class="edit-footer">
           <button class="edit-save" onclick="saveEdit('${id}')">Uložiť zmeny</button>
@@ -684,7 +695,7 @@
 
   window.closeDetail = () => { openId=null; editId=null; document.getElementById("detail-panel").classList.remove("open"); };
   window.startEdit   = id => { editId=id; renderDetail(id); };
-  window.cancelEdit  = ()  => { editId=null; renderDetail(openId); };
+  window.cancelEdit  = ()  => { editId=null; editPhotoData=undefined; renderDetail(openId); };
 
   window.saveEdit = id => {
     const r = allRecords[id]; if(!r) return;
@@ -708,6 +719,8 @@
       const amountWrap = document.getElementById("e-amount-wrap");
       data.amount = (amountWrap && amountWrap.style.display !== "none") ? g("e-amount") : "";
     }
+    if (editPhotoData !== undefined) data.photoUrl = editPhotoData || "";
+    editPhotoData = undefined;
     update(ref(db,"tpzo/"+id), data)
       .then(()=>{ editId=null; renderDetail(id); render(); })
       .catch(err=>{ alert("Chyba ukladania: "+err.message); });
@@ -772,7 +785,37 @@
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+  }
+
+  window.previewEditPhoto = (input) => {
+    const file = input.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX=800; let w=img.width, h=img.height;
+        if(w>MAX){h=h*(MAX/w);w=MAX;} if(h>MAX){w=w*(MAX/h);h=MAX;}
+        canvas.width=w; canvas.height=h;
+        canvas.getContext("2d").drawImage(img,0,0,w,h);
+        editPhotoData = canvas.toDataURL("image/jpeg",0.75);
+        const prev = document.getElementById("e-photo-new-preview");
+        if(prev){ prev.src=editPhotoData; prev.style.display="block"; }
+        const cur = document.getElementById("e-photo-current");
+        if(cur) cur.style.display="none";
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   };
+
+  window.removeEditPhoto = () => {
+    editPhotoData = null;
+    const cur = document.getElementById("e-photo-current");
+    if(cur) cur.style.display="none";
+    const prev = document.getElementById("e-photo-new-preview");
+    if(prev){ prev.src=""; prev.style.display="none"; }
+  };;
 
   window.deleteRecord = id => {
     if (confirm("Vymazať tento TPZOV záznam?")) {
