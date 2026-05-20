@@ -1043,9 +1043,14 @@
     const titleL = doc.splitTextToSize("Záznam o použití prostriedku na zabránenie odjazdu motorového vozidla", CW);
     doc.text(titleL, W/2, y, {align:"center"});
     y += titleL.length * 7 + 2;
-    doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(80,75,70);
-    doc.text("podľa § 16a, ods. 1, zákona 564/1991 Zb. o obecnej polícii.", W/2, y, {align:"center"});
-    doc.setFont("Lato","normal");
+    doc.setFontSize(8); doc.setTextColor(80,75,70);
+    const _sub1="podľa ", _sub2="§", _sub3=" 16a, ods. 1, zákona 564/1991 Zb. o obecnej polícii.";
+    doc.setFont("Lato","normal"); const _sw1=doc.getTextWidth(_sub1), _sw3=doc.getTextWidth(_sub3);
+    doc.setFont("helvetica","normal"); const _sw2=doc.getTextWidth(_sub2);
+    const _sx=(W-_sw1-_sw2-_sw3)/2;
+    doc.setFont("Lato","normal"); doc.text(_sub1,_sx,y);
+    doc.setFont("helvetica","normal"); doc.text(_sub2,_sx+_sw1,y);
+    doc.setFont("Lato","normal"); doc.text(_sub3,_sx+_sw1+_sw2,y);
     y += 9;
 
     // ── HELPER FUNKCIE ──
