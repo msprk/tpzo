@@ -989,41 +989,41 @@
     const isDone = r.status==="done";
 
     // ── TITULOK ──
-    let y = 38;
-    doc.setFontSize(14); doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
-    const titleL = doc.splitTextToSize("Záznam o použití prostriedku na zabránenie odjazdu motorového vozidla", CW);
-    doc.text(titleL, W/2, y, {align:"center"});
-    y += titleL.length * 6 + 2;
-    doc.setFontSize(8); doc.setFont("Lato","normal"); doc.setTextColor(26,24,20);
-    doc.text("podľa § 16a, ods. 1, zákona 564/1991 Zb. o obecnej polícii.", W/2, y, {align:"center"});
-    y += 5;
+    let y = 40;
     doc.setFontSize(8); doc.setFont("Lato","normal"); doc.setTextColor(120,115,110);
     doc.text("ID: "+rid, M, y);
+    y += 8;
+    doc.setFontSize(13); doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
+    const titleL = doc.splitTextToSize("Záznam o použití prostriedku na zabránenie odjazdu motorového vozidla", CW);
+    doc.text(titleL, W/2, y, {align:"center"});
+    y += titleL.length * 7 + 2;
+    doc.setFontSize(8); doc.setFont("Lato","normal"); doc.setTextColor(80,75,70);
+    doc.text("podľa § 16a, ods. 1, zákona 564/1991 Zb. o obecnej polícii.", W/2, y, {align:"center"});
     y += 9;
 
     // ── HELPER FUNKCIE ──
     function row(label, value){
       if(!value && value !== 0) return;
-      doc.setFont("Lato","normal"); doc.setFontSize(9); doc.setTextColor(26,24,20);
+      doc.setFont("Lato","bold"); doc.setFontSize(9); doc.setTextColor(26,24,20);
       doc.text(label+": ", M, y);
       const lw = doc.getTextWidth(label+": ");
-      doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
+      doc.setFont("Lato","normal"); doc.setTextColor(26,24,20);
       const vlines = doc.splitTextToSize(String(value), CW - lw);
       doc.text(vlines[0], M+lw, y);
       y += 6;
       for(let i=1;i<vlines.length;i++){ doc.text(vlines[i], M+lw, y); y+=6; }
     }
     function twoRow(l1,v1,l2,v2){
-      doc.setFont("Lato","normal"); doc.setFontSize(9); doc.setTextColor(26,24,20);
+      doc.setFont("Lato","bold"); doc.setFontSize(9); doc.setTextColor(26,24,20);
       doc.text(l1+": ", M, y);
       const lw1 = doc.getTextWidth(l1+": ");
-      doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
+      doc.setFont("Lato","normal"); doc.setTextColor(26,24,20);
       if(v1) doc.text(String(v1), M+lw1, y);
       if(l2){
-        doc.setFont("Lato","normal"); doc.setTextColor(26,24,20);
+        doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
         doc.text(l2+": ", W/2, y);
         const lw2 = doc.getTextWidth(l2+": ");
-        doc.setFont("Lato","bold");
+        doc.setFont("Lato","normal");
         if(v2) doc.text(String(v2), W/2+lw2, y);
       }
       y += 6;
