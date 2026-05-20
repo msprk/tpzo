@@ -551,6 +551,36 @@
           <div class="edit-group full"><span class="edit-label">Trvalý pobyt</span><input class="edit-field" id="e-driverAddress" value="${r.driverAddress||''}"/></div>
         </div>` : "";
 
+      const _reasonOpts = [
+        "Státie na platenom parkovisku, ak vozidlo nemá zaplatený poplatok za parkovanie",
+        "Státie na vyhradenom parkovacom mieste pre osobu so zdravotným postihnutím",
+        "Státie na vyhradenom parkovisku, ak nejde o vozidlo, pre ktoré je parkovisko vyhradené",
+        "Státie na chodníku",
+        "Státie na cestnej zeleni a verejnej zeleni, na ostrovčekoch a deliacich pásoch",
+        "Státie na mieste, kde je to zakázané dopravnou značkou",
+        "Státie na priechode pre chodcov, na mieste na prechádzanie alebo na priechode pre cyklistov",
+        "Státie na zastávke vozidla pravidelnej verejnej dopravy osôb",
+        "Státie na križovatke",
+        "Státie na vyhradenom jazdnom pruhu",
+        "Státie na cestičke pre cyklistov, cyklistickom pruhu alebo ochrannom pruhu pre cyklistov",
+        "Státie v obytnej zóne a pešej zóne na iných miestach, než sú vyhradené parkoviská",
+        "Státie na miestach, kde by sa obmedzila jazda iných vozidiel",
+        "Státie na pripájacom alebo na odbočovacom pruhu",
+        "Státie pred vjazdom na cestu z pozemku alebo na vyhradenom parkovisku",
+        "Státie na kruhovom objazde",
+        "Státie na bicyklovej ceste mimo miest vyznačených ako parkovisko",
+        "Státie na mieste, kde by nezostal voľný aspoň jeden jazdný pruh široký najmenej 3 m pre každý smer jazdy",
+        "Státie v neprehľadnej zákrute",
+        "Státie pred neprehľadným vrcholom stúpania cesty",
+        "Státie na moste",
+        "Státie na železničnom priecestí, v podjazde a v tuneli",
+        "Státie na električkovom koľajovom páse",
+        "Státie na mieste, kde vozidlo zakrýva dopravnú značku, vodorovné značenie smerov alebo svetelné signály",
+        "Motorové vozidlo, o ktorom sa zistilo, že sa po ňom pátra",
+        "Iné"
+      ];
+      const _reasonIsCustom = !!(r.reason && !_reasonOpts.includes(r.reason));
+      const _reasonSelVal   = _reasonIsCustom ? "Iné" : (r.reason || "");
       panel.innerHTML = `
         <div class="dp-header">
           <div>
@@ -566,7 +596,16 @@
           <div class="edit-group"><span class="edit-label">ŠPZ</span><input class="edit-field" id="e-spz" value="${r.spz||''}" style="text-transform:uppercase;font-weight:600"/></div>
           <div class="edit-group"><span class="edit-label">Farba / typ vozidla</span><input class="edit-field" id="e-vehicle" value="${r.vehicle||''}"/></div>
           <div class="edit-group full"><span class="edit-label">Miesto</span><input class="edit-field" id="e-location" value="${r.location||''}"/></div>
-          <div class="edit-group full"><span class="edit-label">Dôvod</span><textarea class="edit-field ta" id="e-reason">${r.reason||''}</textarea></div>
+          <div class="edit-group full"><span class="edit-label">Dôvod</span>
+            <select class="edit-field" id="e-reason-sel" onchange="document.getElementById('e-reason-other-wrap').style.display=this.value==='Iné'?'':'none'">
+              <option value="">Vybrať</option>
+              ${_reasonOpts.map(o=>'<option '+(_reasonSelVal===o?'selected':'')+'>'+ o+'</option>').join('')}
+            </select>
+          </div>
+          <div class="edit-group full" id="e-reason-other-wrap" style="display:${_reasonIsCustom?'':'none'}">
+            <span class="edit-label">Upresnenie dôvodu</span>
+            <input type="text" class="edit-field" id="e-reason-other" placeholder="Popíšte dôvod..." value="${_reasonIsCustom?escapeHtml(r.reason):''}"/>
+          </div>
           <div class="edit-group"><span class="edit-label">Príslušník MsP</span>
             <select class="edit-field" id="e-worker">
               <option value="">Vybrať</option>
@@ -728,7 +767,8 @@
     const g = s => { const el=document.getElementById(s); return el?el.value.trim():""; };
     const data = {
       date:g("e-date"), time:g("e-time"), spz:g("e-spz").toUpperCase(),
-      vehicle:g("e-vehicle"), location:g("e-location"), reason:g("e-reason"),
+      vehicle:g("e-vehicle"), location:g("e-location"),
+      reason:(()=>{const _s=g("e-reason-sel");const _o=(document.getElementById("e-reason-other")||{value:""}).value.trim();return _s==="Iné"&&_o?_o:_s;})(),
       worker:g("e-worker"), shift:g("e-shift"), notes:g("e-notes")
     };
     // ak je zaznam uzavrety, uloz aj druhu cast
