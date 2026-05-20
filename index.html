@@ -157,7 +157,7 @@
     .photo-upload{border:1.5px dashed var(--border-strong);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:border-color .15s;margin-top:4px}
     .photo-upload:hover{border-color:var(--accent)}
     .empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:14px}
-    .spz-hint{font-size:12px;font-weight:600;color:var(--amber);margin-top:5px;display:none;padding:4px 8px;background:var(--amber-light);border-radius:6px}
+    .spz-hint{font-size:12px;font-weight:600;margin-top:5px;display:none;padding:4px 8px;border-radius:6px}.spz-hint.warn{color:var(--amber);background:var(--amber-light)}.spz-hint.ok{color:var(--green);background:var(--green-light)}
 
     @media(max-width:600px){
       .main{padding:.75rem}
@@ -854,10 +854,16 @@
     const hint = document.getElementById("spz-hint");
     if (!hint) return;
     const spz = val.trim().toUpperCase();
-    if (spz.length < 4) { hint.style.display = "none"; return; }
+    if (spz.length < 4) { hint.style.display = "none"; hint.className = "spz-hint"; return; }
     const matches = Object.values(allRecords).filter(r => r.spz && r.spz.toUpperCase() === spz);
-    if (matches.length === 0) { hint.style.display = "none"; return; }
-    hint.textContent = "⚠ Toto vozidlo bolo evidované " + matches.length + "×";
+    if (matches.length === 0) {
+      hint.textContent = "✓ Vozidlo nebolo ešte evidované";
+      hint.className = "spz-hint ok";
+      hint.style.display = "block";
+      return;
+    }
+    hint.textContent = "⚠ Toto vozidlo bolo už v minulosti evidované: " + matches.length + "×";
+    hint.className = "spz-hint warn";
     hint.style.display = "block";
   };;
 
