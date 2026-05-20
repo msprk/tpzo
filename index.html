@@ -1053,7 +1053,7 @@
       sectionTitle("ZLOŽENIE BLOKOVACIEHO ZARIADENIA");
       twoRow("Dátum",fmtDate(r.closeDate),"Čas",r.closeTime);
       twoRow("Príslušník MsP",r.closeWorker,"Spôsob",r.resolution);
-      if(r.law) row("Priestupok podľa",r.law);
+      if(r.law) row("Priestupok podľa", r.law.replace(/§/g,"par. "));
       if(r.amount) row("Suma pokuty",r.amount+" EUR");
       if(r.driverName){
         sectionTitle("ÚDAJE VODIČA");
