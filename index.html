@@ -1053,7 +1053,16 @@
       sectionTitle("ZLOŽENIE BLOKOVACIEHO ZARIADENIA");
       twoRow("Dátum",fmtDate(r.closeDate),"Čas",r.closeTime);
       twoRow("Príslušník MsP",r.closeWorker,"Spôsob",r.resolution);
-      if(r.law) row("Priestupok podľa", r.law.replace(/§/g,"par. "));
+      if(r.law) {
+        doc.setFont("Lato","bold"); doc.setFontSize(9); doc.setTextColor(26,24,20);
+        doc.text("Priestupok podľa: ", M, y);
+        const _llw = doc.getTextWidth("Priestupok podľa: ");
+        doc.setFont("helvetica","normal"); doc.setTextColor(26,24,20);
+        const _lv = doc.splitTextToSize(String(r.law), CW - _llw);
+        doc.text(_lv[0], M+_llw, y); y += 6;
+        for(let _i=1;_i<_lv.length;_i++){ doc.text(_lv[_i], M+_llw, y); y+=6; }
+        doc.setFont("Lato","normal");
+      }
       if(r.amount) row("Suma pokuty",r.amount+" EUR");
       if(r.driverName){
         sectionTitle("ÚDAJE VODIČA");
