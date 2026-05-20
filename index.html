@@ -451,7 +451,7 @@
             <div class="rec-main">
               <div class="rec-title">${escapeHtml(r.spz||"—")}${r.vehicle?" · "+escapeHtml(r.vehicle):""}${r.location?" · "+escapeHtml(r.location):""}</div>
               <div class="rec-sub">${fmtDate(r.date)} ${escapeHtml(r.time||"")} · Hliadka ${escapeHtml(r.shift||"—")}</div>
-              <div class="rec-id">ID: ${rid}</div>
+              <div class="rec-id">${r.reason ? (r.reason.length > 55 ? escapeHtml(r.reason.slice(0,55))+"…" : escapeHtml(r.reason)) : "—"}</div>
             </div>
             ${badge}
             <button class="dl-btn" onclick="event.stopPropagation();exportPDF('${r.id}')" title="PDF">
