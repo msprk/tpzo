@@ -367,8 +367,17 @@
 
   // ── AUTH GUARD ──
   const auth = getAuth(app);
+  let _dataListening = false;
   onAuthStateChanged(auth, user => {
-    if (!user) window.location.href = "/";
+    if (!user) { window.location.href = "/"; return; }
+    if (_dataListening) return; _dataListening = true;
+    onValue(dbRef, snap => {
+      allRecords = snap.val()||{};
+      setStatus(true);
+      render();
+      if (openId) renderDetail(openId);
+      renderStats();
+    }, () => setStatus(false));
   });
   // ────────────────
   const db     = getDatabase(app);
@@ -409,13 +418,6 @@
 
 
 
-  onValue(dbRef, snap => {
-    allRecords = snap.val()||{};
-    setStatus(true);
-    render();
-    if (openId) renderDetail(openId);
-    renderStats();
-  }, () => setStatus(false));
 
   // ── CARD RENDER ──
   window.render = function() {
