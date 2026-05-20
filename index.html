@@ -992,13 +992,13 @@
     let y = 40;
     doc.setFontSize(8); doc.setFont("Lato","normal"); doc.setTextColor(120,115,110);
     doc.text("ID: "+rid, M, y);
-    y += 8;
+    y += 13;
     doc.setFontSize(13); doc.setFont("Lato","bold"); doc.setTextColor(26,24,20);
     const titleL = doc.splitTextToSize("Záznam o použití prostriedku na zabránenie odjazdu motorového vozidla", CW);
     doc.text(titleL, W/2, y, {align:"center"});
     y += titleL.length * 7 + 2;
     doc.setFontSize(8); doc.setFont("Lato","normal"); doc.setTextColor(80,75,70);
-    doc.text("podľa § 16a, ods. 1, zákona 564/1991 Zb. o obecnej polícii.", W/2, y, {align:"center"});
+    doc.text("podľa par. 16a, ods. 1, zákona 564/1991 Zb. o obecnej polícii.", W/2, y, {align:"center"});
     y += 9;
 
     // ── HELPER FUNKCIE ──
@@ -1039,7 +1039,7 @@
     }
 
     // ── SEKTION: ZALOŽENIE ──
-    sectionTitle("ZALOŽENIE TPZOV");
+    sectionTitle("ZALOŽENIE BLOKOVACIEHO ZARIADENIA");
     twoRow("Dátum",fmtDate(r.date),"Čas",r.time);
     twoRow("Príslušník MsP",r.worker,"Hliadka",r.shift);
     twoRow("EČV",r.spz,"Vozidlo",r.vehicle||"—");
@@ -1050,7 +1050,7 @@
 
     // ── SEKTION: ZLOŽENIE ──
     if(isDone){
-      sectionTitle("ZLOŽENIE TPZOV");
+      sectionTitle("ZLOŽENIE BLOKOVACIEHO ZARIADENIA");
       twoRow("Dátum",fmtDate(r.closeDate),"Čas",r.closeTime);
       twoRow("Príslušník MsP",r.closeWorker,"Spôsob",r.resolution);
       if(r.law) row("Priestupok podľa",r.law);
@@ -1063,7 +1063,7 @@
       if(r.closeNote) row("Poznámka",r.closeNote);
     }
 
-    drawFooter(doc, W, M, "Evidencia TPZOV", rid);
+    drawFooter(doc, W, M, "Evidencia blokovacieho zariadenia", rid);
 
     doc.save("tpzo-"+r.spz+"-"+rid+".pdf");
   };
