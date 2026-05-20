@@ -18,6 +18,15 @@
       --amber:#b45309;--amber-light:#fef3cd;
       --radius:10px;--radius-lg:14px;--nav-h:64px;
     }
+    body.dark{
+      --bg:#151719;--surface:#1e2124;--surface2:#25282c;--surface3:#2c3035;
+      --border:rgba(255,255,255,0.07);--border-strong:rgba(255,255,255,0.14);
+      --text:#e2ddd8;--muted:#7a7570;
+      --accent:#4a8fd4;--accent-light:#1a2d42;--accent-dark:#82b8f0;
+      --green:#3a8c65;--green-light:#0f2a1e;--green-mid:#1a3d2a;
+      --red:#d95040;--red-light:#2a1210;--red-mid:#3d1a17;
+      --amber:#d4890a;--amber-light:#2a1e05;
+    }
     body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:var(--nav-h)}
 
     /* TOPBAR */
@@ -27,6 +36,8 @@
     .topbar-title{font-size:17px;font-weight:600}
     .home-btn { width: 32px; height: 32px; border-radius: 8px; border: .5px solid var(--border-strong); background: var(--surface2); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; text-decoration: none; flex-shrink: 0; }
     .home-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .dark-toggle { width: 32px; height: 32px; border-radius: 8px; border: .5px solid var(--border-strong); background: var(--surface2); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; font-size: 16px; }
+    .dark-toggle:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
     .status-pill{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);background:var(--surface2);border-radius:20px;padding:4px 10px}
     .dot{width:7px;height:7px;border-radius:50%;background:#ccc;transition:background .3s}
     .dot.on{background:#3da45a}
@@ -146,6 +157,7 @@
     .photo-upload{border:1.5px dashed var(--border-strong);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:border-color .15s;margin-top:4px}
     .photo-upload:hover{border-color:var(--accent)}
     .empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:14px}
+    .spz-hint{font-size:12px;font-weight:600;color:var(--amber);margin-top:5px;display:none;padding:4px 8px;background:var(--amber-light);border-radius:6px}
 
     @media(max-width:600px){
       .main{padding:.75rem}
@@ -180,9 +192,12 @@
     <div class="topbar-icon">🔒</div>
     <span class="topbar-title">Evidencia TPZOV</span>
   </div>
-  <div class="status-pill">
-    <div class="dot" id="status-dot"></div>
-    <span id="status-text">Pripájanie...</span>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="dark-toggle" id="dark-toggle-btn" onclick="toggleDark()" title="Tmavý režim">🌙</button>
+    <div class="status-pill">
+      <div class="dot" id="status-dot"></div>
+      <span id="status-text">Pripájanie...</span>
+    </div>
   </div>
 </nav>
 
@@ -262,7 +277,8 @@
 
       <div class="form-section">Vozidlo</div>
       <div class="form-grid">
-        <div class="form-group"><label>EČV vozidla</label><input type="text" id="f-spz" placeholder="BA123AB" style="text-transform:uppercase;font-weight:600;letter-spacing:.05em"/></div>
+        <div class="form-group"><label>EČV vozidla</label><input type="text" id="f-spz" placeholder="BA123AB" style="text-transform:uppercase;font-weight:600;letter-spacing:.05em" oninput="checkSpz(this.value)"/>
+        <div class="spz-hint" id="spz-hint"></div></div>
         <div class="form-group"><label>Značka vozidla</label><input type="text" id="f-vehicle" placeholder="napr. BMW, Škoda..."/></div>
         <div class="form-group">
           <label>Poškodenie pri zakladaní</label>
@@ -815,6 +831,34 @@
     if(cur) cur.style.display="none";
     const prev = document.getElementById("e-photo-new-preview");
     if(prev){ prev.src=""; prev.style.display="none"; }
+  };
+
+  // ── DARK MODE ──
+  window.toggleDark = () => {
+    const isDark = document.body.classList.toggle("dark");
+    localStorage.setItem("msprk-dark", isDark ? "1" : "0");
+    document.getElementById("dark-toggle-btn").textContent = isDark ? "☀️" : "🌙";
+  };
+  (function initDark() {
+    const saved = localStorage.getItem("msprk-dark");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (saved === "1" || (saved === null && prefersDark)) {
+      document.body.classList.add("dark");
+      const btn = document.getElementById("dark-toggle-btn");
+      if (btn) btn.textContent = "☀️";
+    }
+  })();
+
+  // ── OPAKOVANÝ PÁCHATEĽ ──
+  window.checkSpz = (val) => {
+    const hint = document.getElementById("spz-hint");
+    if (!hint) return;
+    const spz = val.trim().toUpperCase();
+    if (spz.length < 4) { hint.style.display = "none"; return; }
+    const matches = Object.values(allRecords).filter(r => r.spz && r.spz.toUpperCase() === spz);
+    if (matches.length === 0) { hint.style.display = "none"; return; }
+    hint.textContent = "⚠ Toto vozidlo bolo evidované " + matches.length + "×";
+    hint.style.display = "block";
   };;
 
   window.deleteRecord = id => {
